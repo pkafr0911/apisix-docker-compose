@@ -2,32 +2,16 @@ version: "3"
 
 volumes:
   mysql_data:
-      driver: local
+    driver: local
 
 services:
   apisix-dashboard:
-    image: apache/apisix-dashboard:2.7
+    image: pkafr0911/apisix-dashboard-viettel-theme:latest
     restart: always
     volumes:
-    - ./dashboard_conf/conf.yaml:/usr/local/apisix-dashboard/conf/conf.yaml
+      - ./dashboard_conf/conf.yaml:/usr/local/apisix-dashboard/conf/conf.yaml
     ports:
-    - "9000:9000"
-    networks:
-      apisix:
-
-  apisix:
-    image: apache/apisix:2.6-alpine
-    restart: always
-    volumes:
-      - ./apisix_log:/usr/local/apisix/logs
-      - ./apisix_conf/config.yaml:/usr/local/apisix/conf/config.yaml:ro
-    depends_on:
-      - etcd
-    ##network_mode: host
-    ports:
-      - "9080:9080/tcp"
-      - "9091:9091/tcp"
-      - "9443:9443/tcp"
+      - "9000:9000"
     networks:
       apisix:
 
@@ -46,59 +30,6 @@ services:
       - "4000:4000/tcp"
     networks:
       apisix:
-
-  web1:
-    image: nginx:1.19.0-alpine
-    restart: always
-    volumes:
-      - ./upstream/web1.conf:/etc/nginx/nginx.conf
-    ports:
-      - "9081:80/tcp"
-    environment:
-      - NGINX_PORT=80
-    networks:
-      apisix:
-
-  web2:
-    image: nginx:1.19.0-alpine
-    restart: always
-    volumes:
-      - ./upstream/web2.conf:/etc/nginx/nginx.conf
-    ports:
-      - "9082:80/tcp"
-    environment:
-      - NGINX_PORT=80
-    networks:
-      apisix:
-
-  mysql:
-      image: mysql:5.7
-      volumes:
-        - mysql_data:/var/lib/mysql
-      environment:
-        MYSQL_ROOT_PASSWORD: root
-        MYSQL_DATABASE: keycloak
-        MYSQL_USER: keycloak
-        MYSQL_PASSWORD: password
-        
-  keycloak:
-      image: quay.io/keycloak/keycloak:15.0.2
-      environment:
-        DB_VENDOR: MYSQL
-        DB_ADDR: mysql
-        DB_DATABASE: keycloak
-        DB_USER: keycloak
-        DB_PASSWORD: password
-        KEYCLOAK_USER: admin
-        KEYCLOAK_PASSWORD: admin
-        #KEYCLOAK_LOGLEVEL: DEBUG
-        # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the MySQL JDBC driver documentation in order to use it.
-        #JDBC_PARAMS: "connectTimeout=30000"
-      ports:
-        - 8080:8080
-        - 8443:8443
-      depends_on:
-        - mysql    
 
 networks:
   apisix:
